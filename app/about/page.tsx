@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Reveal from "@/components/Reveal";
-import { SummitMark } from "@/components/Marks";
 
 export const metadata: Metadata = {
   title: "St. Pier Giorgio Frassati",
@@ -22,8 +22,15 @@ export default function About() {
       <section className="bg-parchment text-ink">
         <div className="mx-auto grid max-w-6xl gap-14 px-5 py-24 md:grid-cols-[1fr_1.4fr] md:items-center">
           <Reveal>
-            <div className="mx-auto flex aspect-square max-w-sm items-center justify-center rounded-full border border-gold/50 p-10">
-              <SummitMark className="h-40 w-40 text-gold" />
+            <div className="mx-auto max-w-sm overflow-hidden rounded-2xl border border-gold/50 shadow-lg">
+              <Image
+                src="/images/pier-giorgio-summit.jpg"
+                alt="St. Pier Giorgio Frassati standing at a mountain summit"
+                width={960}
+                height={540}
+                className="h-full w-full object-cover"
+                priority
+              />
             </div>
           </Reveal>
           <div>
