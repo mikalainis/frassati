@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s · Frassati Fellowship NJ"
   },
   description:
-    "A fellowship of Catholics drawn to the mountains and to the Mass, climbing together toward the Kingdom of God. Somerset Hill Deanery, Diocese of Metuchen.",
+    "A fellowship of Catholics drawn to the mountains and to the Mass, climbing together toward the Kingdom of God. A lay apostolate in Central New Jersey.",
   openGraph: {
     title: "Frassati Fellowship of New Jersey",
     description:

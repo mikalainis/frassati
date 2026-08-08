@@ -6,7 +6,7 @@ import { Ridgeline } from "@/components/Marks";
 export const metadata: Metadata = {
   title: "Signature Gatherings",
   description:
-    "Dinner & Holy Hour and The Hike — the two events the Frassati Fellowship of New Jersey is built around."
+    "Dinner & Holy Hour and The Hike — the events the Frassati Fellowship of New Jersey is built around."
 };
 
 export default function Gatherings() {
@@ -16,7 +16,7 @@ export default function Gatherings() {
         <Reveal>
           <p className="eyebrow">Signature gatherings</p>
           <h1 className="mt-4 max-w-2xl font-display text-4xl text-bone md:text-6xl">
-            Two events the fellowship is built around.
+            Events the fellowship is built around.
           </h1>
           <p className="mt-5 max-w-xl text-mist">
             Each begins in fellowship and rises toward the Lord — one at the
