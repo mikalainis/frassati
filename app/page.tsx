@@ -143,7 +143,7 @@ export default function Home() {
           <Reveal>
             <p className="eyebrow">Signature gatherings</p>
             <h2 className="mt-4 font-display text-4xl text-bone md:text-5xl">
-              Two events the fellowship is built around.
+              Events the fellowship is built around.
             </h2>
             <p className="mt-4 max-w-xl text-mist">
               Each begins in fellowship and rises toward the Lord — one at the
@@ -153,27 +153,24 @@ export default function Home() {
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             <Reveal>
               <div className="card-dark h-full p-8">
-                <p className="eyebrow">Gathering I</p>
-                <h3 className="mt-3 font-display text-3xl text-bone">
+                <h3 className="font-display text-3xl text-bone">
                   Dinner &amp; Holy Hour
                 </h3>
                 <p className="mt-4 text-sm leading-relaxed text-mist">
-                  Dinners on church property where couples and singles build
-                  friendship and plan the season ahead. The evening rises into
-                  Exposition of the Blessed Sacrament: Confession, sacred music
-                  sung reverently, and quiet time before the Lord.
+                  The evening begins before the Lord — Exposition of the
+                  Blessed Sacrament, Confession, and sacred music sung
+                  reverently — and concludes with dinner, where couples and
+                  singles build friendship and share their faith.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <span className="chip">First: <b>Fall 2026</b></span>
                   <span className="chip"><b>50–60</b> guests</span>
-                  <span className="chip">No fewer than <b>3 priests</b></span>
                 </div>
               </div>
             </Reveal>
             <Reveal>
               <div className="card-dark h-full p-8">
-                <p className="eyebrow">Gathering II</p>
-                <h3 className="mt-3 font-display text-3xl text-bone">
+                <h3 className="font-display text-3xl text-bone">
                   The Hike
                 </h3>
                 <p className="mt-4 text-sm leading-relaxed text-mist">
@@ -183,7 +180,6 @@ export default function Home() {
                   routes, adults on the harder ascents.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
-                  <span className="chip">First: <b>Fall 2026</b></span>
                   <span className="chip"><b>Family</b> &amp; <b>adult</b> routes</span>
                   <span className="chip">Prayer on the trail</span>
                 </div>
@@ -191,8 +187,8 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal className="mt-10">
-            <Link href="/gatherings" className="btn-ghost">
-              Learn more about our gatherings
+            <Link href="/calendar" className="btn-ghost">
+              See upcoming events
             </Link>
           </Reveal>
         </div>
@@ -228,9 +224,6 @@ export default function Home() {
           <h2 className="font-display text-4xl text-bone md:text-5xl">
             Come climb with us.
           </h2>
-          <p className="mt-5 text-mist">
-            We begin small and by invitation, and we trust the rest to God.
-          </p>
           <Link href="/get-involved#join" className="btn-gold mt-8">
             Join the ascent
           </Link>

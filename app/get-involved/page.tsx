@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const ways = [
   {
     t: "Come to a gathering",
-    d: "Our Dinner & Holy Hour and our first Hike begin in Fall 2026, starting by invitation at St. James and growing outward to neighboring parishes."
+    d: "Join us for a Holy Hour with dinner, or a hike with prayer on the trail — friends and families welcome."
   },
   {
     t: "Serve on a committee",
@@ -33,9 +33,8 @@ export default function GetInvolved() {
             Come climb with us.
           </h1>
           <p className="mt-5 max-w-xl text-mist">
-            A communications committee carries the invitation outward — first
-            within St. James, then to neighboring parishes — so that more
-            friends, with faith and without, might join the ascent.
+            A communications committee carries the invitation outward so that
+            more friends, with faith and without, might join the ascent.
           </p>
         </Reveal>
 
@@ -52,7 +51,50 @@ export default function GetInvolved() {
       </section>
 
       <section className="bg-parchment text-ink">
-        <div className="mx-auto max-w-6xl px-5 py-24">
+        <div className="mx-auto grid max-w-6xl gap-14 px-5 py-24 md:grid-cols-2">
+          <Reveal>
+            <p className="eyebrow">Who we serve</p>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl">
+              Catholic lay adults — and the families they bring.
+            </h2>
+            <p className="mt-5 text-ink/75">
+              Single and married, with children warmly welcome. The fellowship
+              is led by lay men and women and accompanied by our priests at
+              every gathering.
+            </p>
+          </Reveal>
+
+          <div className="space-y-5">
+            <Reveal>
+              <p className="eyebrow">How we&apos;re organized</p>
+            </Reveal>
+            {[
+              {
+                t: "Core Team",
+                d: "Men and women who hold the vision of the ministry, and review and approve the events that align with it."
+              },
+              {
+                t: "Committees",
+                d: "Small teams that plan and report to the Core Team for approval: Hikes, Service, Spiritual Formation, Communications, Music."
+              },
+              {
+                t: "Chaplains",
+                d: "Ordained chaplains who bring the sacraments to our gatherings."
+              }
+            ].map((o) => (
+              <Reveal key={o.t}>
+                <div className="rounded-2xl border border-ink/10 bg-white/60 p-6">
+                  <h3 className="font-display text-xl">{o.t}</h3>
+                  <p className="mt-2 text-sm text-ink/70">{o.d}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-parchment text-ink">
+        <div className="mx-auto max-w-6xl px-5 pb-24">
           <Reveal>
             <p className="eyebrow">Beyond the trail and the altar</p>
             <h2 className="mt-4 max-w-xl font-display text-4xl md:text-5xl">
@@ -106,8 +148,8 @@ export default function GetInvolved() {
               Receive our invitations.
             </h2>
             <p className="mt-3 text-sm text-mist">
-              Leave your name and email and we&apos;ll reach out as the first
-              gatherings take shape.
+              Leave your name and email and we&apos;ll reach out about upcoming
+              events.
             </p>
           </Reveal>
           <JoinForm />

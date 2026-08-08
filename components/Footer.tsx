@@ -12,8 +12,8 @@ export default function Footer() {
             <span className="font-display">Frassati Fellowship of New Jersey</span>
           </div>
           <p className="mt-4 max-w-xs text-sm text-mist">
-            A lay apostolate in the Somerset Hill Deanery, Diocese of Metuchen —
-            beginning at St. James and extending to neighboring parishes.
+            A lay apostolate of Catholics in Central New Jersey, climbing
+            together toward the Kingdom of God.
           </p>
         </div>
 
