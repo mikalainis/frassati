@@ -7,6 +7,7 @@ import { SummitMark } from "./Marks";
 const links = [
   { href: "/about", label: "St. Pier Giorgio" },
   { href: "/gatherings", label: "Gatherings" },
+  { href: "/calendar", label: "Calendar" },
   { href: "/get-involved", label: "Get Involved" }
 ];
 

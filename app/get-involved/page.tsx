@@ -51,6 +51,53 @@ export default function GetInvolved() {
         </div>
       </section>
 
+      <section className="bg-parchment text-ink">
+        <div className="mx-auto max-w-6xl px-5 py-24">
+          <Reveal>
+            <p className="eyebrow">Beyond the trail and the altar</p>
+            <h2 className="mt-4 max-w-xl font-display text-4xl md:text-5xl">
+              Ministries that carry the fellowship.
+            </h2>
+            <p className="mt-4 max-w-xl text-ink/70">
+              The Hike and the Holy Hour remain our heart — these ministries
+              exist to lift them up and to carry Frassati&apos;s spirit
+              outward.
+            </p>
+          </Reveal>
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                t: "Music",
+                d: "Liturgical and sacred music, sung reverently at our Holy Hours — and songs for the trail and table."
+              },
+              {
+                t: "Service",
+                d: "Soup kitchens, meals on the street, and clothing drives — hidden service of the poor, as Pier Giorgio lived it."
+              },
+              {
+                t: "Spiritual Formation",
+                d: "Reflections for the trail, prayer resources, and formation in the Beatitudes for our members."
+              },
+              {
+                t: "Hikes",
+                d: "Scouting and rating routes, planning treks, and leading prayer at the rest stops."
+              },
+              {
+                t: "Communications",
+                d: "Carrying the invitation outward — first within St. James, then to neighboring parishes."
+              }
+            ].map((m) => (
+              <Reveal key={m.t}>
+                <div className="h-full rounded-2xl border border-ink/10 bg-white/60 p-6">
+                  <h3 className="font-display text-2xl">{m.t}</h3>
+                  <p className="mt-2 text-sm text-ink/70">{m.d}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="join" className="border-t border-white/5 bg-slate2">
         <div className="mx-auto max-w-2xl px-5 py-24">
           <Reveal>

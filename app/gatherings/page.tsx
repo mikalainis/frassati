@@ -22,6 +22,14 @@ export default function Gatherings() {
             Each begins in fellowship and rises toward the Lord — one at the
             altar, one on the mountain.
           </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link href="/get-involved#join" className="btn-gold">
+              Get involved
+            </Link>
+            <Link href="/calendar" className="btn-ghost">
+              See the calendar
+            </Link>
+          </div>
         </Reveal>
       </section>
       <Ridgeline className="h-12 w-full" />
@@ -138,9 +146,14 @@ export default function Gatherings() {
           <h2 className="font-display text-3xl text-bone md:text-4xl">
             Want to be at the first gathering?
           </h2>
-          <Link href="/get-involved#join" className="btn-gold mt-8">
-            Get involved
-          </Link>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/get-involved#join" className="btn-gold">
+              Get involved
+            </Link>
+            <Link href="/calendar" className="btn-ghost">
+              See the calendar
+            </Link>
+          </div>
         </Reveal>
       </section>
     </>

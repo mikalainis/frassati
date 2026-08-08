@@ -37,12 +37,20 @@ components/
    instructions from your registrar (usually an A record to 76.76.21.21 and a
    CNAME for www).
 
+## One-time setup
+
+- **Signup form** (`components/JoinForm.tsx`): sends every signup to
+  frassatinj@gmail.com via FormSubmit. The very first submission triggers a
+  confirmation email to that inbox — click the activation link once, and all
+  future signups arrive automatically.
+- **Calendar** (`app/calendar/page.tsx`): embeds the frassatinj@gmail.com
+  Google Calendar. Make it public once: Google Calendar → Settings → that
+  calendar → Access permissions → "Make available to public." Events you add
+  there appear on the site automatically.
+
 ## To do next
 
-- Wire `components/JoinForm.tsx` to a real mailing list (Mailchimp,
-  Buttondown, a Google Form, or an API route with Resend).
 - Add real photography (trail shots, Holy Hour) — the design leaves room for
   a hero image behind the contour graphics.
-- Add an events/calendar page once the first gatherings are scheduled.
 
 Verso l'alto!

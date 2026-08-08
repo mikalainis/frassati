@@ -22,6 +22,7 @@ export default function Footer() {
           <ul className="space-y-2 text-mist">
             <li><Link className="hover:text-goldpale" href="/about">About St. Pier Giorgio</Link></li>
             <li><Link className="hover:text-goldpale" href="/gatherings">Signature gatherings</Link></li>
+            <li><Link className="hover:text-goldpale" href="/calendar">Calendar</Link></li>
             <li><Link className="hover:text-goldpale" href="/get-involved">Get involved</Link></li>
           </ul>
         </nav>
