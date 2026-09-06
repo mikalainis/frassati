@@ -78,7 +78,7 @@ export default function Gatherings() {
             Want to attend a gathering?
           </h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/get-involved#join" className="btn-gold">
+            <Link href="/rsvp" className="btn-gold">
               RSVP for upcoming events
             </Link>
             <Link href="/calendar" className="btn-ghost">

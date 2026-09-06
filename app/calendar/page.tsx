@@ -40,6 +40,9 @@ export default function CalendarPage() {
             <Link href="/get-involved#join" className="btn-gold">
               Get invitations by email
             </Link>
+            <Link href="/rsvp" className="btn-gold">
+              RSVP for an event
+            </Link>
             <a
               className="btn-ghost"
               href="https://calendar.google.com/calendar/u/0/r?cid=frassatinj@gmail.com"

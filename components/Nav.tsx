@@ -8,6 +8,7 @@ const links = [
   { href: "/about", label: "St. Pier Giorgio" },
   { href: "/gatherings", label: "Gatherings" },
   { href: "/calendar", label: "Calendar" },
+  { href: "/rsvp", label: "RSVP" },
   { href: "/get-involved", label: "Get Involved" }
 ];
 
