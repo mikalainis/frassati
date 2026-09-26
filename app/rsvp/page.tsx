@@ -4,90 +4,65 @@ import Reveal from "@/components/Reveal";
 import { Ridgeline } from "@/components/Marks";
 
 export const metadata: Metadata = {
-  title: "RSVP",
+  title: "Join an Upcoming Gathering",
   description:
-    "RSVP for upcoming gatherings of the Frassati Fellowship of New Jersey — Dinner & Holy Hour and The Hike."
+    "Join upcoming gatherings of the Frassati Fellowship of New Jersey — see our calendar to RSVP for dinners, Holy Hours, and hikes."
 };
 
-// Edit this array to change what appears on the RSVP page. `date` is
-// optional — leave it off and the card simply omits it.
-const events: { name: string; formUrl: string; note: string; date?: string }[] = [
-  {
-    name: "Dinner & Holy Hour",
-    formUrl: "https://forms.gle/v1NnrXrrTcWwD3KG8",
-    note: "Adoration, Confession, and sacred music, concluding with dinner."
-  },
-  {
-    name: "The Hike",
-    formUrl: "https://forms.gle/ChJLBCAMb58wXUHv8",
-    note: "Family and adult routes, with prayer on the trail. Registration includes a waiver."
-  }
-];
+function InstagramIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 export default function Rsvp() {
   return (
     <>
-      <section className="mx-auto max-w-6xl px-5 pb-10 pt-24">
+      <section id="rsvp" className="mx-auto max-w-4xl px-5 py-24 text-center">
         <Reveal>
-          <p className="eyebrow">RSVP</p>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl text-bone md:text-6xl">
-            RSVP for upcoming events
+          <p className="eyebrow justify-center">Upcoming gatherings</p>
+          <h1 className="mt-4 font-display text-4xl text-bone md:text-6xl">
+            Join an upcoming gathering
           </h1>
-          <p className="mt-5 max-w-xl text-mist">
-            Let us know you&apos;re coming. Each gathering has its own short
-            registration form — it takes a minute, and it helps us plan the
-            table and the trail.
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-mist">
+            Our dinners, Holy Hours, and hikes are all on our calendar. To RSVP,
+            click on the calendar event you&apos;d like to attend and respond
+            there. Hike events include a link to the required waiver.
           </p>
+          <div className="mt-8 flex justify-center">
+            <Link href="/gatherings#calendar" className="btn-gold">
+              View the calendar
+            </Link>
+          </div>
+          <div className="mt-10 flex items-center justify-center gap-2 text-sm text-mist">
+            <span>Follow along on Instagram</span>
+            <a
+              href="https://www.instagram.com/frassati.nj/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Frassati Fellowship on Instagram (opens in a new tab)"
+              className="inline-flex items-center gap-1.5 font-medium text-gold transition hover:text-goldpale"
+            >
+              <InstagramIcon className="h-4 w-4" />
+              <span>@frassati.nj</span>
+            </a>
+          </div>
         </Reveal>
       </section>
       <Ridgeline className="h-12 w-full" />
-
-      <section className="mx-auto max-w-6xl px-5 py-16">
-        {events.length === 0 ? (
-          <Reveal>
-            <div className="card-dark p-8 text-center md:p-10">
-              <h2 className="font-display text-3xl text-bone">
-                No open registrations right now
-              </h2>
-              <p className="mt-4 text-mist">
-                Join the mailing list and we&apos;ll send the invitation as soon
-                as the next gathering is scheduled.
-              </p>
-              <div className="mt-8 flex justify-center">
-                <Link href="/get-involved#join" className="btn-gold">
-                  Join the mailing list
-                </Link>
-              </div>
-            </div>
-          </Reveal>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2">
-            {events.map((e) => (
-              <Reveal key={e.name}>
-                <article className="card-dark flex h-full flex-col p-8 md:p-10">
-                  <h2 className="font-display text-4xl text-bone">{e.name}</h2>
-                  {e.date && (
-                    <p className="mt-4">
-                      <span className="chip">{e.date}</span>
-                    </p>
-                  )}
-                  <p className="mt-5 leading-relaxed text-mist">{e.note}</p>
-                  <div className="mt-8 flex flex-wrap gap-4">
-                    <a
-                      className="btn-gold"
-                      href={e.formUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      RSVP
-                    </a>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-        )}
-      </section>
     </>
   );
 }

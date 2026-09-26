@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import AskWidget from "@/components/AskWidget";
 import { Contours, Ridgeline } from "@/components/Marks";
 
 const pillars = [
@@ -187,27 +186,10 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal className="mt-10">
-            <Link href="/calendar" className="btn-ghost">
+            <Link href="/gatherings#calendar" className="btn-ghost">
               See upcoming events
             </Link>
           </Reveal>
-        </div>
-      </section>
-
-      {/* ASK */}
-      <section className="border-t border-white/5 bg-slate2">
-        <div className="mx-auto max-w-3xl px-5 py-24">
-          <Reveal>
-            <p className="eyebrow">Questions?</p>
-            <h2 className="mt-4 font-display text-3xl text-bone md:text-4xl">
-              Ask about the Fellowship.
-            </h2>
-            <p className="mt-3 text-sm text-mist">
-              Curious about St. Pier Giorgio, our gatherings, or how to get
-              involved? Ask below.
-            </p>
-          </Reveal>
-          <AskWidget />
         </div>
       </section>
 

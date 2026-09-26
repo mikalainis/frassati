@@ -3,6 +3,9 @@ node_modules
 out
 .env*.local
 .env
+.env.*
+.gemini/
+.gemini/.env
 .vercel
 *.tsbuildinfo
 next-env.d.ts

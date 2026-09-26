@@ -15,14 +15,38 @@ export default function Footer() {
             A lay apostolate of Catholics in Central New Jersey, climbing
             together toward the Kingdom of God.
           </p>
+          <div className="mt-6">
+            <a
+              href="https://www.instagram.com/frassati.nj/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Frassati Fellowship on Instagram (opens in a new tab)"
+              className="inline-flex items-center gap-2 text-sm text-mist transition hover:text-goldpale"
+            >
+              <svg
+                className="h-4 w-4 text-gold"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+              </svg>
+              <span>@frassati.nj</span>
+            </a>
+          </div>
         </div>
 
         <nav className="text-sm" aria-label="Footer">
           <p className="eyebrow mb-4">Explore</p>
           <ul className="space-y-2 text-mist">
             <li><Link className="hover:text-goldpale" href="/about">About St. Pier Giorgio</Link></li>
-            <li><Link className="hover:text-goldpale" href="/gatherings">Signature gatherings</Link></li>
-            <li><Link className="hover:text-goldpale" href="/calendar">Calendar</Link></li>
+            <li><Link className="hover:text-goldpale" href="/gatherings">Gatherings &amp; Calendar</Link></li>
             <li><Link className="hover:text-goldpale" href="/get-involved">Get involved</Link></li>
           </ul>
         </nav>
