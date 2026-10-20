@@ -107,18 +107,14 @@ export default function GetInvolved() {
             </p>
           </Reveal>
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {([
+            {[
               {
                 t: "Music",
                 d: "Liturgical and sacred music, sung reverently at our Holy Hours — and songs for the trail and table."
               },
               {
                 t: "Service",
-                d: "Soup kitchens, meals on the street, and clothing drives — hidden service of the poor, as Pier Giorgio lived it.",
-                link: {
-                  href: "https://photos.app.goo.gl/e916ounQuYvLjN486",
-                  label: "See photos from our service"
-                }
+                d: "Soup kitchens, meals on the street, and clothing drives — hidden service of the poor, as Pier Giorgio lived it."
               },
               {
                 t: "Spiritual Formation",
@@ -132,21 +128,11 @@ export default function GetInvolved() {
                 t: "Communications",
                 d: "Carrying the invitation outward — first within St. James, then to neighboring parishes."
               }
-            ] as { t: string; d: string; link?: { href: string; label: string } }[]).map((m) => (
+            ].map((m) => (
               <Reveal key={m.t}>
                 <div className="h-full rounded-2xl border border-ink/10 bg-white/60 p-6">
                   <h3 className="font-display text-2xl">{m.t}</h3>
                   <p className="mt-2 text-sm text-ink/70">{m.d}</p>
-                  {m.link && (
-                    <a
-                      href={m.link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-gold hover:underline"
-                    >
-                      {m.link.label} <span aria-hidden>→</span>
-                    </a>
-                  )}
                 </div>
               </Reveal>
             ))}
