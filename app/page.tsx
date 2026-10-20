@@ -2,7 +2,12 @@ import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { Contours, Ridgeline } from "@/components/Marks";
 
-const pillars = [
+const pillars: {
+  n: string;
+  title: string;
+  items: string[];
+  link?: { href: string; label: string };
+}[] = [
   {
     n: "i.",
     title: "Prayer & the Sacraments",
@@ -31,7 +36,11 @@ const pillars = [
       "Clothing drives for those in need",
       "Partnering with Catholic apostolates",
       "Family-friendly service opportunities"
-    ]
+    ],
+    link: {
+      href: "https://photos.app.goo.gl/e916ounQuYvLjN486",
+      label: "See photos from our service"
+    }
   },
   {
     n: "iv.",
@@ -126,6 +135,16 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+                  {p.link && (
+                    <a
+                      href={p.link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-gold hover:underline"
+                    >
+                      {p.link.label} <span aria-hidden>→</span>
+                    </a>
+                  )}
                 </div>
               </Reveal>
             ))}
