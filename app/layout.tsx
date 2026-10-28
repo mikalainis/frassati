@@ -3,6 +3,7 @@ import { Fraunces, Figtree } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const display = Fraunces({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
         <Nav />
         <main>{children}</main>
         <Footer />
+        <GoogleAnalytics />
       </body>
     </html>
   );
