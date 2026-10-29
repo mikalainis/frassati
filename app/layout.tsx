@@ -37,11 +37,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable}`}>
+      <head>
+        <GoogleAnalytics />
+      </head>
       <body className="font-body antialiased">
         <Nav />
         <main>{children}</main>
         <Footer />
-        <GoogleAnalytics />
       </body>
     </html>
   );

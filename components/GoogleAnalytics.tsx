@@ -1,7 +1,6 @@
-import Script from "next/script";
-
 /**
- * Google Analytics 4 (gtag.js).
+ * Google Analytics 4 (gtag.js) — rendered in <head> as Google's standard
+ * snippet so it appears in the raw HTML (Google's tag checker looks for it).
  *
  * Uses the fellowship's GA4 property (G-VM4C7W7Q2D). NEXT_PUBLIC_GA_ID can
  * override it if the property ever changes. Skipped during local dev
@@ -17,18 +16,18 @@ export default function GoogleAnalytics() {
 
   return (
     <>
-      <Script
+      <script
+        async
         src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-        strategy="afterInteractive"
       />
-      <Script id="ga4-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${gaId}', { anonymize_ip: true });
-        `}
-      </Script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${gaId}');`
+        }}
+      />
     </>
   );
 }
