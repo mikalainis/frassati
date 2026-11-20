@@ -35,8 +35,8 @@ export default function Gatherings() {
             Events the fellowship is built around.
           </h1>
           <p className="mt-5 max-w-xl text-mist">
-            Each begins in fellowship and rises toward the Lord — one at the
-            altar, one on the mountain.
+            Each begins in fellowship and rises toward the Lord — at the
+            altar, on the mountain, and among the poor.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a href="#calendar" className="btn-gold">
@@ -84,6 +84,26 @@ export default function Gatherings() {
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="chip">One <b>family</b> route · one <b>adult</b> route</span>
               <span className="chip">Signed <b>waiver</b> required</span>
+            </div>
+          </article>
+        </Reveal>
+
+        <Reveal className="md:col-span-2">
+          <article className="card-dark flex h-full flex-col p-8 md:p-10">
+            <h2 className="font-display text-4xl text-bone">Service</h2>
+            <p className="mt-5 max-w-3xl leading-relaxed text-mist">
+              Pier Giorgio quietly carried the poor of Turin, and we follow him
+              into the streets of our own towns — serving at soup kitchens and
+              sharing meals with those on the street, running clothing drives
+              for those in need, and working alongside Catholic apostolates
+              already in the field. Many outings welcome families, so children
+              can learn to serve beside their parents.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className="chip"><b>Soup kitchens</b> · meals on the street</span>
+              <span className="chip"><b>Clothing</b> drives</span>
+              <span className="chip">With <b>Catholic apostolates</b></span>
+              <span className="chip"><b>Family</b>-friendly</span>
             </div>
           </article>
         </Reveal>
