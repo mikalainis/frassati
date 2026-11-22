@@ -3,9 +3,10 @@
 // The sheet has one tab per gathering (TABS below) and must be shared as "Anyone with the link:
 // Viewer". Leaders edit it; the site picks up changes within REFRESH_SECONDS. Each tab's columns
 // (first row is the header):
-//   Date | Time | Title | Location | Summary | RSVP link
-// Date is M/D/YYYY (or YYYY-MM-DD). For each gathering the site shows the soonest row dated today
-// or later; past rows are simply ignored. A blank RSVP link uses the gathering's standing form.
+//   Show on site | Date | Time | Title | Location | Summary | RSVP link
+// A row appears only when "Show on site" is Yes (or a ticked checkbox). Date is M/D/YYYY (or
+// YYYY-MM-DD). For each gathering the site shows the soonest shown row dated today or later;
+// past rows are simply ignored. A blank RSVP link uses the gathering's standing form.
 
 export type Gathering = "dinner" | "hike" | "service" | "formation";
 
@@ -38,7 +39,7 @@ export const TABS: Record<Gathering, string> = {
 };
 
 const SHEET_ID =
-  process.env.EVENTS_SHEET_ID || "1ZhpNI_WgbkF01m6KEI8nvP5IGJNbo7jF50A7izRxWHQ";
+  process.env.EVENTS_SHEET_ID || "1UNc41bP89s8gvXMwHBLjNukP3eIHy2RCmuFBdv3roP8";
 export const EVENTS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}`;
 
 /** CSV of one tab. EVENTS_CSV_BASE (testing) serves files named after each gathering key. */
@@ -114,6 +115,11 @@ export function todayInNewJersey(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(now);
 }
 
+/** "Show on site" values that mean yes. Blank or anything else keeps the row hidden. */
+function isShown(value: string): boolean {
+  return ["yes", "y", "true", "x", "✓", "✔"].includes(value.trim().toLowerCase());
+}
+
 /** Soonest upcoming event in one gathering's tab, from that tab's CSV text. */
 export function nextEvent(
   csv: string,
@@ -125,6 +131,7 @@ export function nextEvent(
   const col = (name: string) =>
     header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
   const idx = {
+    show: col("Show on site"),
     date: col("Date"),
     time: col("Time"),
     title: col("Title"),
@@ -136,6 +143,7 @@ export function nextEvent(
 
   let next: UpcomingEvent | undefined;
   for (const r of rows) {
+    if (!isShown(get(r, idx.show))) continue;
     const date = toIsoDate(get(r, idx.date));
     if (!date || date < today || (next && next.date <= date)) continue;
     next = {
