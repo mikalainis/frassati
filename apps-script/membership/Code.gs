@@ -22,6 +22,14 @@ const M = {
     'Service': 'https://forms.gle/ss8sYbNeeXBUp4856',
     'Spiritual Formation': 'https://forms.gle/1AWuGAqnuJqmSSU87',
   },
+  // Optional: each form's ID, from its edit link (docs.google.com/forms/d/<ID>/edit).
+  // Used first; the forms.gle links above are only a fallback for finding them.
+  FORM_IDS: {
+    'Dinner & Holy Hour': '',
+    'Hike': '',
+    'Service': '',
+    'Spiritual Formation': '',
+  },
   // Columns this script adds at the end of the list if they are missing.
   NEW_COLUMNS: ['Source', 'First contact', 'Last activity'],
 };
@@ -177,16 +185,28 @@ function nextEventHeader_(gathering) {
 
 /** Matches each forms.gle link to a form this account can edit. */
 function findForms_() {
-  const wanted = {};
-  Object.keys(M.FORMS).forEach((g) => { wanted[g] = publishedId_(resolve_(M.FORMS[g])); });
   const found = {};
+  Object.keys(M.FORMS).forEach((g) => {
+    const id = (M.FORM_IDS[g] || '').trim();
+    if (!id) return;
+    try { found[g] = FormApp.openById(id); }
+    catch (err) { Logger.log('Cannot open the ' + g + ' form (' + id + '): ' + err); }
+  });
+  if (Object.keys(found).length === Object.keys(M.FORMS).length) return found;
+
+  const wanted = {};
+  Object.keys(M.FORMS).forEach((g) => {
+    if (found[g]) return;
+    wanted[g] = publishedId_(resolve_(M.FORMS[g]));
+    Logger.log(g + ' link resolves to published id: ' + (wanted[g] || '(none)'));
+  });
   const files = DriveApp.getFilesByType(MimeType.GOOGLE_FORMS);
   while (files.hasNext()) {
     const f = files.next();
     let form;
     try { form = FormApp.openById(f.getId()); } catch (err) { continue; }
     const id = publishedId_(form.getPublishedUrl());
-    Object.keys(wanted).forEach((g) => { if (wanted[g] && wanted[g] === id) found[g] = form; });
+    Object.keys(wanted).forEach((g) => { if (wanted[g] && wanted[g] === id && !found[g]) found[g] = form; });
   }
   return found;
 }
