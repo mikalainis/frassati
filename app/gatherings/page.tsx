@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { Ridgeline } from "@/components/Marks";
+import NextEvent from "@/components/NextEvent";
+import { getNextEvents } from "@/lib/events";
+
+// Re-read the Upcoming Events sheet at most every 5 minutes.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Gatherings & Calendar",
   description:
-    "Upcoming gatherings and calendar of the Frassati Fellowship of New Jersey — Dinner & Holy Hour, The Hike, and service."
+    "Upcoming gatherings and calendar of the Frassati Fellowship of New Jersey — Dinner & Holy Hour, The Hike, Service, and Spiritual Formation."
 };
 
 // This embeds the frassatinj@gmail.com Google Calendar. For it to display,
@@ -24,7 +29,8 @@ const CAL_SRC =
   "&ctz=America%2FNew_York&mode=AGENDA&showTitle=0&showPrint=0&showTz=0" +
   "&bgcolor=%23EDE7DB&color=%23C99A3C";
 
-export default function Gatherings() {
+export default async function Gatherings() {
+  const next = await getNextEvents();
   return (
     <>
       {/* INTRO */}
@@ -36,7 +42,8 @@ export default function Gatherings() {
           </h1>
           <p className="mt-5 max-w-xl text-mist">
             Each begins in fellowship and rises toward the Lord — at the
-            altar, on the mountain, and among the poor.
+            altar, on the mountain, among the poor, and in the study of the
+            faith.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a href="#calendar" className="btn-gold">
@@ -68,6 +75,9 @@ export default function Gatherings() {
               <span className="chip"><b>50–60</b> guests</span>
               <span className="chip">Growing from <b>St. James</b> outward</span>
             </div>
+            <div className="mt-auto">
+              <NextEvent gathering="dinner" event={next.dinner} />
+            </div>
           </article>
         </Reveal>
 
@@ -85,13 +95,16 @@ export default function Gatherings() {
               <span className="chip">One <b>family</b> route · one <b>adult</b> route</span>
               <span className="chip">Signed <b>waiver</b> required</span>
             </div>
+            <div className="mt-auto">
+              <NextEvent gathering="hike" event={next.hike} />
+            </div>
           </article>
         </Reveal>
 
-        <Reveal className="md:col-span-2">
+        <Reveal>
           <article className="card-dark flex h-full flex-col p-8 md:p-10">
             <h2 className="font-display text-4xl text-bone">Service</h2>
-            <p className="mt-5 max-w-3xl leading-relaxed text-mist">
+            <p className="mt-5 leading-relaxed text-mist">
               Pier Giorgio quietly carried the poor of Turin, and we follow him
               into the streets of our own towns — serving at soup kitchens and
               sharing meals with those on the street, running clothing drives
@@ -105,6 +118,28 @@ export default function Gatherings() {
               <span className="chip">With <b>Catholic apostolates</b></span>
               <span className="chip"><b>Family</b>-friendly</span>
             </div>
+            <div className="mt-auto">
+              <NextEvent gathering="service" event={next.service} />
+            </div>
+          </article>
+        </Reveal>
+        <Reveal>
+          <article className="card-dark flex h-full flex-col p-8 md:p-10">
+            <h2 className="font-display text-4xl text-bone">Spiritual Formation</h2>
+            <p className="mt-5 leading-relaxed text-mist">
+              Pier Giorgio&apos;s joy was rooted in the Eucharist, Scripture,
+              and the teaching of the Church. Our chaplains lead talks and
+              discussion on the faith, the saints, and the life of virtue, so
+              that what we pray at the altar and carry up the mountain takes
+              root in our daily lives.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <span className="chip">Led by our <b>chaplains</b></span>
+              <span className="chip"><b>Scripture</b> · the saints · Church teaching</span>
+            </div>
+            <div className="mt-auto">
+              <NextEvent gathering="formation" event={next.formation} />
+            </div>
           </article>
         </Reveal>
       </section>
@@ -117,7 +152,7 @@ export default function Gatherings() {
             Upcoming gatherings.
           </h2>
           <p className="mt-5 max-w-xl text-mist">
-            Hikes, Holy Hours, and service — added here as each is scheduled. To
+            Hikes, Holy Hours, service, and formation — added here as each is scheduled. To
             RSVP, click on the calendar event you&apos;d like to attend and
             respond there.
           </p>

@@ -63,6 +63,16 @@ cleaned up automatically to stay within free storage.
   calendar → Access permissions → "Make available to public." Events you add
   there appear on the site automatically.
 
+- **Next-gathering snapshots** (`lib/events.ts`): each card on the Gatherings
+  page shows the next date for that gathering, read live from the Google Sheet
+  "Frassati Website — Upcoming Events" (refreshes within 5 minutes). The sheet
+  has one tab per gathering: Dinner & Holy Hour, Hike, Service, Spiritual
+  Formation. Columns: Show on site (Yes/No; only Yes rows appear), Date (M/D/YYYY),
+  Time, Title, Location, Summary, RSVP link
+  (optional; blank uses the gathering's standing form in `DEFAULT_RSVP`). Past
+  rows are ignored. Share the sheet once as "Anyone with the link: Viewer", and
+  keep the tab and header names as they are.
+
 ## To do next
 
 - Add real photography (trail shots, Holy Hour) — the design leaves room for

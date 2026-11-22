@@ -1,0 +1,197 @@
+// Upcoming events, read live from the "Frassati Website — Upcoming Events" Google Sheet.
+//
+// The sheet has one tab per gathering (TABS below) and must be shared as "Anyone with the link:
+// Viewer". Leaders edit it; the site picks up changes within REFRESH_SECONDS. Each tab's columns
+// (first row is the header):
+//   Show on site | Date | Time | Title | Location | Summary | RSVP link
+// A row appears only when "Show on site" is Yes (or a ticked checkbox). Date is M/D/YYYY (or
+// YYYY-MM-DD). For each gathering the site shows the soonest shown row dated today or later;
+// past rows are simply ignored. A blank RSVP link uses the gathering's standing form.
+
+export type Gathering = "dinner" | "hike" | "service" | "formation";
+
+/** Each gathering's standing Google Form. A sheet row's RSVP link overrides it for that event. */
+export const DEFAULT_RSVP: Record<Gathering, string> = {
+  dinner: "https://forms.gle/cscCKP3XbaPE68Mn7",
+  hike: "https://forms.gle/j3ASM1pjCYMMDyoE8",
+  service: "https://forms.gle/ss8sYbNeeXBUp4856",
+  formation: "https://forms.gle/1AWuGAqnuJqmSSU87"
+};
+
+export type UpcomingEvent = {
+  gathering: Gathering;
+  date: string; // YYYY-MM-DD
+  time: string;
+  title: string;
+  location: string;
+  summary: string;
+  rsvpUrl: string | null;
+};
+
+export const REFRESH_SECONDS = 300;
+
+/** Sheet tab for each gathering. Renaming a tab in the sheet means renaming it here too. */
+export const TABS: Record<Gathering, string> = {
+  dinner: "Dinner & Holy Hour",
+  hike: "Hike",
+  service: "Service",
+  formation: "Spiritual Formation"
+};
+
+const SHEET_ID =
+  process.env.EVENTS_SHEET_ID || "17NXd2bSEKu-Ykg6RCbwOFFX_3QUnawvdrQbedEqEFLU";
+export const EVENTS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}`;
+
+/** CSV of one tab. EVENTS_CSV_BASE (testing) serves files named after each gathering key. */
+function tabCsvUrl(gathering: Gathering): string {
+  const base = process.env.EVENTS_CSV_BASE;
+  if (base) return `${base}/${gathering}.csv`;
+  return `${EVENTS_SHEET_URL}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(TABS[gathering])}`;
+}
+const TIME_ZONE = "America/New_York";
+
+/** Minimal RFC 4180 CSV parser (quoted fields, escaped quotes, newlines inside quotes). */
+export function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else quoted = false;
+      } else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") {
+      row.push(field);
+      field = "";
+    } else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = "";
+    } else field += c;
+  }
+  if (field !== "" || row.length) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows;
+}
+
+/** Accepts M/D/YYYY, YYYY-MM-DD, or a written date ("Dec 13, 2026"); returns YYYY-MM-DD. */
+export function toIsoDate(value: string): string | null {
+  const v = value.trim();
+  let m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return iso(+m[1], +m[2], +m[3]);
+  m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (m) return iso(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[1], +m[2]);
+  const t = Date.parse(v);
+  if (!v || Number.isNaN(t)) return null;
+  const d = new Date(t);
+  return iso(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+function iso(y: number, mo: number, d: number): string | null {
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+function safeUrl(value: string): string | null {
+  try {
+    const u = new URL(value.trim());
+    return u.protocol === "https:" || u.protocol === "http:" ? u.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+export function todayInNewJersey(now = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(now);
+}
+
+/** "Show on site" values that mean yes. Blank or anything else keeps the row hidden. */
+function isShown(value: string): boolean {
+  return ["yes", "y", "true", "x", "✓", "✔"].includes(value.trim().toLowerCase());
+}
+
+/** Soonest upcoming event in one gathering's tab, from that tab's CSV text. */
+export function nextEvent(
+  csv: string,
+  gathering: Gathering,
+  today: string
+): UpcomingEvent | undefined {
+  const [header, ...rows] = parseCsv(csv);
+  if (!header) return undefined;
+  const col = (name: string) =>
+    header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
+  const idx = {
+    show: col("Show on site"),
+    date: col("Date"),
+    time: col("Time"),
+    title: col("Title"),
+    location: col("Location"),
+    summary: col("Summary"),
+    rsvp: col("RSVP link")
+  };
+  const get = (r: string[], i: number) => (i >= 0 ? (r[i] ?? "").trim() : "");
+
+  let next: UpcomingEvent | undefined;
+  for (const r of rows) {
+    if (!isShown(get(r, idx.show))) continue;
+    const date = toIsoDate(get(r, idx.date));
+    if (!date || date < today || (next && next.date <= date)) continue;
+    next = {
+      gathering,
+      date,
+      time: get(r, idx.time),
+      title: get(r, idx.title),
+      location: get(r, idx.location),
+      summary: get(r, idx.summary),
+      rsvpUrl: safeUrl(get(r, idx.rsvp)) ?? DEFAULT_RSVP[gathering]
+    };
+  }
+  return next;
+}
+
+async function fetchTab(gathering: Gathering, today: string): Promise<UpcomingEvent | undefined> {
+  try {
+    const res = await fetch(tabCsvUrl(gathering), { next: { revalidate: REFRESH_SECONDS } });
+    if (!res.ok) return undefined;
+    const text = await res.text();
+    if (text.trimStart().startsWith("<")) return undefined; // sign-in page: sheet isn't shared
+    return nextEvent(text, gathering, today);
+  } catch {
+    return undefined;
+  }
+}
+
+/** Next event for every gathering (each tab cached for REFRESH_SECONDS). Never throws. */
+export async function getNextEvents(): Promise<Partial<Record<Gathering, UpcomingEvent>>> {
+  const today = todayInNewJersey();
+  const keys = Object.keys(TABS) as Gathering[];
+  const found = await Promise.all(keys.map((g) => fetchTab(g, today)));
+  const next: Partial<Record<Gathering, UpcomingEvent>> = {};
+  keys.forEach((g, i) => {
+    if (found[i]) next[g] = found[i];
+  });
+  return next;
+}
+
+/** "Saturday, December 13" (adds the year if it isn't this year). */
+export function formatEventDate(date: string, today: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12));
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    ...(date.slice(0, 4) !== today.slice(0, 4) ? { year: "numeric" } : {}),
+    timeZone: "UTC"
+  }).format(dt);
+}
