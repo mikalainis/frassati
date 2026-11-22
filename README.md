@@ -1,4 +1,4 @@
-# Frassati Fellowship of New Jersey — frassatinj.com
+# Frassati Fellowship of New Jersey — frassatinj.org
 
 A Next.js (App Router) + TypeScript + Tailwind CSS site for the Frassati
 Fellowship.
@@ -30,13 +30,27 @@ components/
   Nav, Footer, Marks (logo + contour/ridgeline SVGs), Reveal, JoinForm
 ```
 
-## Deploying to Vercel
+## Hosting: Google Cloud Run
 
-1. Push this repo to GitHub.
-2. Import the repo at https://vercel.com/new — Vercel auto-detects Next.js.
-3. In Project → Settings → Domains, add `frassatinj.com` and follow the DNS
-   instructions from your registrar (usually an A record to 76.76.21.21 and a
-   CNAME for www).
+The site runs on Google Cloud Run (us-east4) at frassatinj.org. Every merge to
+`main` builds a container and deploys it automatically
+(`.github/workflows/deploy.yml`); you can also start it by hand under
+Actions → Deploy website → Run workflow. GitHub signs in to Google Cloud through
+Workload Identity Federation, so no keys are stored anywhere.
+
+One-time setup (in Google Cloud Shell, https://shell.cloud.google.com):
+
+1. Create a Google Cloud project and link billing.
+2. `git clone https://github.com/mikalainis/frassati && cd frassati`
+3. `PROJECT_ID=<project id> bash infra/gcp/bootstrap.sh`, then paste the lines
+   it prints into `infra/gcp/production.env` and merge that to `main`. The
+   first deploy runs.
+4. `gcloud domains verify frassatinj.org` (once), then
+   `PROJECT_ID=<project id> bash infra/gcp/domain.sh` and enter the DNS records
+   it prints at GoDaddy, replacing the old Vercel ones.
+
+Cost: within Cloud Run's free tier at this site's traffic; old images are
+cleaned up automatically to stay within free storage.
 
 ## One-time setup
 

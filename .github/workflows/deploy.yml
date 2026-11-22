@@ -1,0 +1,84 @@
+name: Deploy website
+
+# Every merge to main goes live on Google Cloud Run (or run it by hand: Actions > Deploy website >
+# Run workflow). Identifiers come from infra/gcp/production.env; no keys are stored anywhere:
+# GitHub signs in to Google Cloud through Workload Identity Federation (main branch only).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  SERVICE: frassati
+
+jobs:
+  deploy:
+    name: Build, deploy, smoke test
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Load Google Cloud identifiers
+        id: cfg
+        run: |
+          grep -E '^GCP_' infra/gcp/production.env >> "$GITHUB_ENV"
+          if grep -q '^GCP_PROJECT_ID=.\+' infra/gcp/production.env; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::infra/gcp/production.env has no project yet (run infra/gcp/bootstrap.sh). Skipping deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.cfg.outputs.ready == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_DEPLOYER_SA }}
+
+      - if: steps.cfg.outputs.ready == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and push the image
+        if: steps.cfg.outputs.ready == 'true'
+        id: img
+        run: |
+          image="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/frassati/site:$(git rev-parse --short=12 HEAD)"
+          gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+          docker build -t "$image" .
+          docker push "$image"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Cloud Run
+        if: steps.cfg.outputs.ready == 'true'
+        id: deploy
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --image "${{ steps.img.outputs.image }}" \
+            --region "$GCP_REGION" \
+            --service-account "$GCP_RUNTIME_SA" \
+            --port 8080 --memory 512Mi --cpu 1 \
+            --min-instances 0 --max-instances 3 \
+            --allow-unauthenticated
+          url="$(gcloud run services describe "$SERVICE" --region "$GCP_REGION" --format='value(status.url)')"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          url="${{ steps.deploy.outputs.url }}"
+          for page in / /about /gatherings /get-involved /rsvp; do
+            curl --fail --silent --show-error -o /dev/null "$url$page"
+          done
+          curl --fail --silent --show-error "$url/gatherings" | grep -q "Service"
+          echo "Site is up: $url"
