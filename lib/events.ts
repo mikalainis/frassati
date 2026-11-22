@@ -39,7 +39,7 @@ export const TABS: Record<Gathering, string> = {
 };
 
 const SHEET_ID =
-  process.env.EVENTS_SHEET_ID || "1UNc41bP89s8gvXMwHBLjNukP3eIHy2RCmuFBdv3roP8";
+  process.env.EVENTS_SHEET_ID || "17NXd2bSEKu-Ykg6RCbwOFFX_3QUnawvdrQbedEqEFLU";
 export const EVENTS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}`;
 
 /** CSV of one tab. EVENTS_CSV_BASE (testing) serves files named after each gathering key. */
