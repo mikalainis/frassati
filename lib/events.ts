@@ -1,10 +1,11 @@
 // Upcoming events, read live from the "Frassati Website — Upcoming Events" Google Sheet.
 //
-// The sheet must be shared as "Anyone with the link: Viewer". Leaders edit the sheet; the
-// site picks up changes within REFRESH_SECONDS. Columns (first row is the header):
-//   Gathering | Date | Time | Title | Location | Summary | RSVP link
-// Gathering is Dinner, Hike, Service or Formation. Date is M/D/YYYY (or YYYY-MM-DD). For each gathering
-// the site shows the soonest row dated today or later; past rows are simply ignored.
+// The sheet has one tab per gathering (TABS below) and must be shared as "Anyone with the link:
+// Viewer". Leaders edit it; the site picks up changes within REFRESH_SECONDS. Each tab's columns
+// (first row is the header):
+//   Date | Time | Title | Location | Summary | RSVP link
+// Date is M/D/YYYY (or YYYY-MM-DD). For each gathering the site shows the soonest row dated today
+// or later; past rows are simply ignored. A blank RSVP link uses the gathering's standing form.
 
 export type Gathering = "dinner" | "hike" | "service" | "formation";
 
@@ -28,10 +29,24 @@ export type UpcomingEvent = {
 
 export const REFRESH_SECONDS = 300;
 
+/** Sheet tab for each gathering. Renaming a tab in the sheet means renaming it here too. */
+export const TABS: Record<Gathering, string> = {
+  dinner: "Dinner & Holy Hour",
+  hike: "Hike",
+  service: "Service",
+  formation: "Spiritual Formation"
+};
+
 const SHEET_ID =
-  process.env.EVENTS_SHEET_ID || "1ULi_5pe_iJJme9_5_LF0aEFERsUoCZPb2l50sgR9Kr4";
+  process.env.EVENTS_SHEET_ID || "1ZhpNI_WgbkF01m6KEI8nvP5IGJNbo7jF50A7izRxWHQ";
 export const EVENTS_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}`;
-const CSV_URL = process.env.EVENTS_CSV_URL || `${EVENTS_SHEET_URL}/export?format=csv`;
+
+/** CSV of one tab. EVENTS_CSV_BASE (testing) serves files named after each gathering key. */
+function tabCsvUrl(gathering: Gathering): string {
+  const base = process.env.EVENTS_CSV_BASE;
+  if (base) return `${base}/${gathering}.csv`;
+  return `${EVENTS_SHEET_URL}/gviz/tq?tqx=out:csv&headers=1&sheet=${encodeURIComponent(TABS[gathering])}`;
+}
 const TIME_ZONE = "America/New_York";
 
 /** Minimal RFC 4180 CSV parser (quoted fields, escaped quotes, newlines inside quotes). */
@@ -86,15 +101,6 @@ function iso(y: number, mo: number, d: number): string | null {
   return `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-function toGathering(value: string): Gathering | null {
-  const v = value.trim().toLowerCase();
-  if (v.startsWith("dinner") || v.includes("holy hour")) return "dinner";
-  if (v.startsWith("hike")) return "hike";
-  if (v.startsWith("service")) return "service";
-  if (v.startsWith("spiritual") || v.includes("formation")) return "formation";
-  return null;
-}
-
 function safeUrl(value: string): string | null {
   try {
     const u = new URL(value.trim());
@@ -108,14 +114,17 @@ export function todayInNewJersey(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(now);
 }
 
-/** Soonest upcoming event per gathering, from the sheet's CSV text. */
-export function nextEvents(csv: string, today: string): Partial<Record<Gathering, UpcomingEvent>> {
+/** Soonest upcoming event in one gathering's tab, from that tab's CSV text. */
+export function nextEvent(
+  csv: string,
+  gathering: Gathering,
+  today: string
+): UpcomingEvent | undefined {
   const [header, ...rows] = parseCsv(csv);
-  if (!header) return {};
+  if (!header) return undefined;
   const col = (name: string) =>
     header.findIndex((h) => h.trim().toLowerCase() === name.toLowerCase());
   const idx = {
-    gathering: col("Gathering"),
     date: col("Date"),
     time: col("Time"),
     title: col("Title"),
@@ -125,14 +134,11 @@ export function nextEvents(csv: string, today: string): Partial<Record<Gathering
   };
   const get = (r: string[], i: number) => (i >= 0 ? (r[i] ?? "").trim() : "");
 
-  const next: Partial<Record<Gathering, UpcomingEvent>> = {};
+  let next: UpcomingEvent | undefined;
   for (const r of rows) {
-    const gathering = toGathering(get(r, idx.gathering));
     const date = toIsoDate(get(r, idx.date));
-    if (!gathering || !date || date < today) continue;
-    const current = next[gathering];
-    if (current && current.date <= date) continue;
-    next[gathering] = {
+    if (!date || date < today || (next && next.date <= date)) continue;
+    next = {
       gathering,
       date,
       time: get(r, idx.time),
@@ -145,17 +151,28 @@ export function nextEvents(csv: string, today: string): Partial<Record<Gathering
   return next;
 }
 
-/** Fetches the sheet (cached for REFRESH_SECONDS). Never throws: a failure shows "coming soon". */
-export async function getNextEvents(): Promise<Partial<Record<Gathering, UpcomingEvent>>> {
+async function fetchTab(gathering: Gathering, today: string): Promise<UpcomingEvent | undefined> {
   try {
-    const res = await fetch(CSV_URL, { next: { revalidate: REFRESH_SECONDS } });
-    if (!res.ok) return {};
+    const res = await fetch(tabCsvUrl(gathering), { next: { revalidate: REFRESH_SECONDS } });
+    if (!res.ok) return undefined;
     const text = await res.text();
-    if (text.trimStart().startsWith("<")) return {}; // sign-in page: sheet isn't shared yet
-    return nextEvents(text, todayInNewJersey());
+    if (text.trimStart().startsWith("<")) return undefined; // sign-in page: sheet isn't shared
+    return nextEvent(text, gathering, today);
   } catch {
-    return {};
+    return undefined;
   }
+}
+
+/** Next event for every gathering (each tab cached for REFRESH_SECONDS). Never throws. */
+export async function getNextEvents(): Promise<Partial<Record<Gathering, UpcomingEvent>>> {
+  const today = todayInNewJersey();
+  const keys = Object.keys(TABS) as Gathering[];
+  const found = await Promise.all(keys.map((g) => fetchTab(g, today)));
+  const next: Partial<Record<Gathering, UpcomingEvent>> = {};
+  keys.forEach((g, i) => {
+    if (found[i]) next[g] = found[i];
+  });
+  return next;
 }
 
 /** "Saturday, December 13" (adds the year if it isn't this year). */
