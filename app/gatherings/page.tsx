@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/Reveal";
 import { Ridgeline } from "@/components/Marks";
+import NextEvent from "@/components/NextEvent";
+import { getNextEvents } from "@/lib/events";
+
+// Re-read the Upcoming Events sheet at most every 5 minutes.
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Gatherings & Calendar",
@@ -24,7 +29,8 @@ const CAL_SRC =
   "&ctz=America%2FNew_York&mode=AGENDA&showTitle=0&showPrint=0&showTz=0" +
   "&bgcolor=%23EDE7DB&color=%23C99A3C";
 
-export default function Gatherings() {
+export default async function Gatherings() {
+  const next = await getNextEvents();
   return (
     <>
       {/* INTRO */}
@@ -68,6 +74,9 @@ export default function Gatherings() {
               <span className="chip"><b>50–60</b> guests</span>
               <span className="chip">Growing from <b>St. James</b> outward</span>
             </div>
+            <div className="mt-auto">
+              <NextEvent event={next.dinner} />
+            </div>
           </article>
         </Reveal>
 
@@ -84,6 +93,9 @@ export default function Gatherings() {
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="chip">One <b>family</b> route · one <b>adult</b> route</span>
               <span className="chip">Signed <b>waiver</b> required</span>
+            </div>
+            <div className="mt-auto">
+              <NextEvent event={next.hike} />
             </div>
           </article>
         </Reveal>
@@ -104,6 +116,9 @@ export default function Gatherings() {
               <span className="chip"><b>Clothing</b> drives</span>
               <span className="chip">With <b>Catholic apostolates</b></span>
               <span className="chip"><b>Family</b>-friendly</span>
+            </div>
+            <div className="mt-auto">
+              <NextEvent event={next.service} />
             </div>
           </article>
         </Reveal>
