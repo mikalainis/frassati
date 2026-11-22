@@ -3,10 +3,18 @@
 // The sheet must be shared as "Anyone with the link: Viewer". Leaders edit the sheet; the
 // site picks up changes within REFRESH_SECONDS. Columns (first row is the header):
 //   Gathering | Date | Time | Title | Location | Summary | RSVP link
-// Gathering is Dinner, Hike or Service. Date is M/D/YYYY (or YYYY-MM-DD). For each gathering
+// Gathering is Dinner, Hike, Service or Formation. Date is M/D/YYYY (or YYYY-MM-DD). For each gathering
 // the site shows the soonest row dated today or later; past rows are simply ignored.
 
-export type Gathering = "dinner" | "hike" | "service";
+export type Gathering = "dinner" | "hike" | "service" | "formation";
+
+/** Each gathering's standing Google Form. A sheet row's RSVP link overrides it for that event. */
+export const DEFAULT_RSVP: Record<Gathering, string> = {
+  dinner: "https://forms.gle/cscCKP3XbaPE68Mn7",
+  hike: "https://forms.gle/j3ASM1pjCYMMDyoE8",
+  service: "https://forms.gle/ss8sYbNeeXBUp4856",
+  formation: "https://forms.gle/1AWuGAqnuJqmSSU87"
+};
 
 export type UpcomingEvent = {
   gathering: Gathering;
@@ -83,6 +91,7 @@ function toGathering(value: string): Gathering | null {
   if (v.startsWith("dinner") || v.includes("holy hour")) return "dinner";
   if (v.startsWith("hike")) return "hike";
   if (v.startsWith("service")) return "service";
+  if (v.startsWith("spiritual") || v.includes("formation")) return "formation";
   return null;
 }
 
@@ -130,7 +139,7 @@ export function nextEvents(csv: string, today: string): Partial<Record<Gathering
       title: get(r, idx.title),
       location: get(r, idx.location),
       summary: get(r, idx.summary),
-      rsvpUrl: safeUrl(get(r, idx.rsvp))
+      rsvpUrl: safeUrl(get(r, idx.rsvp)) ?? DEFAULT_RSVP[gathering]
     };
   }
   return next;

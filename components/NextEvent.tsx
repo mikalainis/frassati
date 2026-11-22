@@ -1,7 +1,33 @@
-import { formatEventDate, todayInNewJersey, type UpcomingEvent } from "@/lib/events";
+import {
+  DEFAULT_RSVP,
+  formatEventDate,
+  todayInNewJersey,
+  type Gathering,
+  type UpcomingEvent
+} from "@/lib/events";
+
+function RsvpButton({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`RSVP for ${label} (opens a sign-up form in a new tab)`}
+      className="btn-gold mt-5"
+    >
+      RSVP
+    </a>
+  );
+}
 
 /** Snapshot of the next scheduled gathering, with an RSVP button to its Google Form. */
-export default function NextEvent({ event }: { event?: UpcomingEvent }) {
+export default function NextEvent({
+  gathering,
+  event
+}: {
+  gathering: Gathering;
+  event?: UpcomingEvent;
+}) {
   if (!event) {
     return (
       <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5">
@@ -15,6 +41,7 @@ export default function NextEvent({ event }: { event?: UpcomingEvent }) {
           </a>
           .
         </p>
+        <RsvpButton href={DEFAULT_RSVP[gathering]} label="the next gathering" />
       </div>
     );
   }
@@ -34,17 +61,7 @@ export default function NextEvent({ event }: { event?: UpcomingEvent }) {
       {event.summary && (
         <p className="mt-3 text-sm leading-relaxed text-mist">{event.summary}</p>
       )}
-      {event.rsvpUrl && (
-        <a
-          href={event.rsvpUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`RSVP for ${event.title || when} (opens a sign-up form in a new tab)`}
-          className="btn-gold mt-5"
-        >
-          RSVP
-        </a>
-      )}
+      {event.rsvpUrl && <RsvpButton href={event.rsvpUrl} label={event.title || when} />}
     </div>
   );
 }

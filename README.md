@@ -66,9 +66,10 @@ cleaned up automatically to stay within free storage.
 - **Next-gathering snapshots** (`lib/events.ts`): each card on the Gatherings
   page shows the next date for that gathering, read live from the Google Sheet
   "Frassati Website — Upcoming Events" (refreshes within 5 minutes). Share the
-  sheet once as "Anyone with the link: Viewer". Columns: Gathering (Dinner, Hike
-  or Service), Date (M/D/YYYY), Time, Title, Location, Summary, RSVP link
-  (the Google Form). Past rows are ignored, so you can keep history in the sheet.
+  sheet once as "Anyone with the link: Viewer". Columns: Gathering (Dinner, Hike,
+  Service or Formation), Date (M/D/YYYY), Time, Title, Location, Summary, RSVP link
+  (optional: each gathering already has a standing Google Form in
+  `DEFAULT_RSVP`; a link here overrides it for that event). Past rows are ignored, so you can keep history in the sheet.
 
 ## To do next
 
