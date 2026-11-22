@@ -6,3 +6,4 @@ infra
 npm-debug.log*
 .env*
 *.md
+apps-script
