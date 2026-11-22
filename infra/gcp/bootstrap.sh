@@ -70,6 +70,12 @@ exists gcloud iam service-accounts describe "$RUN_SA_EMAIL" ||
 exists gcloud iam service-accounts describe "$DEPLOY_SA_EMAIL" ||
   gcloud iam service-accounts create "$DEPLOY_SA" --display-name="Frassati GitHub Actions deployer"
 
+# New service accounts take a moment to become visible to IAM; wait for them.
+for i in $(seq 1 12); do
+  exists gcloud iam service-accounts get-iam-policy "$DEPLOY_SA_EMAIL" && break
+  sleep 5
+done
+
 say "Roles: deployer can deploy Cloud Run and push images; the runtime account gets none"
 for role in roles/run.admin roles/artifactregistry.writer; do
   gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:${DEPLOY_SA_EMAIL}" \
