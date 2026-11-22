@@ -1,5 +1,4 @@
 import {
-  DEFAULT_RSVP,
   formatEventDate,
   todayInNewJersey,
   type Gathering,
@@ -22,7 +21,6 @@ function RsvpButton({ href, label }: { href: string; label: string }) {
 
 /** Snapshot of the next scheduled gathering, with an RSVP button to its Google Form. */
 export default function NextEvent({
-  gathering,
   event
 }: {
   gathering: Gathering;
@@ -41,7 +39,16 @@ export default function NextEvent({
           </a>
           .
         </p>
-        <RsvpButton href={DEFAULT_RSVP[gathering]} label="the next gathering" />
+        {/* No scheduled event: show RSVP greyed out and not clickable until one is added. */}
+        <span
+          role="link"
+          aria-disabled="true"
+          title="RSVP opens when the next date is announced"
+          className="mt-5 inline-flex cursor-not-allowed select-none items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-mist/60"
+        >
+          RSVP
+        </span>
+        <p className="mt-2 text-xs text-mist/70">RSVP opens when the next date is announced.</p>
       </div>
     );
   }
