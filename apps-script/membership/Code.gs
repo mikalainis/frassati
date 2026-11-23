@@ -64,6 +64,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Membership')
     .addItem('Check for new RSVPs now', 'syncRsvps')
     .addItem('Import website sign-ups from Gmail', 'importSignupEmails')
+    .addItem('Update the "Frassati Members" contact label now', 'syncContactsLabel')
     .addToUi();
 }
 
@@ -168,6 +169,104 @@ function parseSignup_(body) {
   const name = [field('First name'), field('Last name')].filter((x) => x && !/@/.test(x) &&
     !/^(last name|email)$/i.test(x)).map(titleCase_).join(' ');
   return { email: email, name: name };
+}
+
+// ---------------------------------------------------------------- Google Contacts label
+
+const LABEL = 'Frassati Members';
+const OPT_OUT_COLUMN = 'No emails'; // any value in this column keeps a person off the label
+
+/** Run once: puts everyone on the list under the label and keeps it updated every hour. */
+function setupContactsLabel() {
+  ScriptApp.getProjectTriggers()
+    .filter((t) => t.getHandlerFunction() === 'syncContactsLabel')
+    .forEach((t) => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('syncContactsLabel').timeBased().everyHours(1).create();
+  const sh = sheet_();
+  if (headers_(sh)[OPT_OUT_COLUMN.toLowerCase()] === undefined) addColumn_(sh, OPT_OUT_COLUMN);
+  syncContactsLabel();
+}
+
+/**
+ * Makes the "Frassati Members" label in this account's Google Contacts match the list: every
+ * person with an email is added (creating the contact if needed); anyone with a value in the
+ * "No emails" column is taken off the label. Contacts are never deleted, and people you put
+ * under the label by hand are left alone.
+ */
+function syncContactsLabel() {
+  const group = contactGroup_();
+
+  // Everyone in Contacts, by email, with whether they already carry the label.
+  const byEmail = {};
+  let pageToken;
+  do {
+    const res = People.People.Connections.list('people/me', {
+      personFields: 'emailAddresses,memberships', pageSize: 1000, pageToken: pageToken,
+    });
+    (res.connections || []).forEach((c) => {
+      const inGroup = (c.memberships || []).some((m) =>
+        m.contactGroupMembership && m.contactGroupMembership.contactGroupResourceName === group);
+      (c.emailAddresses || []).forEach((e) => {
+        const k = cleanEmail_(e.value);
+        if (k && !byEmail[k]) byEmail[k] = { resourceName: c.resourceName, inGroup: inGroup };
+      });
+    });
+    pageToken = res.nextPageToken;
+  } while (pageToken);
+
+  // The list.
+  const sh = sheet_();
+  const h = headers_(sh);
+  const emailCol = h['e-mail'] !== undefined ? h['e-mail'] : h['email'];
+  const optCol = h[OPT_OUT_COLUMN.toLowerCase()];
+  const rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues() : [];
+
+  const toAdd = [], toRemove = [], seen = {};
+  const props = PropertiesService.getScriptProperties();
+  let created = 0;
+  rows.forEach((r) => {
+    const email = cleanEmail_(r[emailCol]);
+    if (!email || seen[email]) return;
+    seen[email] = true;
+    const optedOut = optCol !== undefined && clean_(r[optCol]) !== '';
+    const known = byEmail[email];
+    if (optedOut) { if (known && known.inGroup) toRemove.push(known.resourceName); return; }
+    if (known) { if (!known.inGroup) toAdd.push(known.resourceName); return; }
+    // Contacts take a few minutes to show up in the listing; don't create the same one twice.
+    if (props.getProperty('contact:' + email)) return;
+    const name = /[a-z]/i.test(clean_(r[h['name']])) ? clean_(r[h['name']]) : '';
+    const person = People.People.createContact({
+      names: name ? [{ unstructuredName: name }] : [],
+      emailAddresses: [{ value: email }],
+      memberships: [{ contactGroupMembership: { contactGroupResourceName: group } }],
+    });
+    props.setProperty('contact:' + email, person.resourceName || 'created');
+    created++;
+    Utilities.sleep(700); // stay under the Contacts write limit
+  });
+
+  for (let i = 0; i < Math.max(toAdd.length, toRemove.length); i += 500) {
+    const body = {};
+    if (toAdd.length > i) body.resourceNamesToAdd = toAdd.slice(i, i + 500);
+    if (toRemove.length > i) body.resourceNamesToRemove = toRemove.slice(i, i + 500);
+    People.ContactGroups.Members.modify(body, group);
+  }
+  const msg = LABEL + ': ' + created + ' contact(s) created, ' + toAdd.length + ' existing contact(s) labeled, ' +
+    toRemove.length + ' removed (No emails).';
+  Logger.log(msg);
+  try { SpreadsheetApp.getActive().toast(msg, 'Membership', 10); } catch (e) { /* trigger or editor */ }
+}
+
+/** Resource name of the "Frassati Members" contact label, creating it if needed. */
+function contactGroup_() {
+  let pageToken;
+  do {
+    const res = People.ContactGroups.list({ pageSize: 1000, pageToken: pageToken });
+    const g = (res.contactGroups || []).find((x) => x.name === LABEL || x.formattedName === LABEL);
+    if (g) return g.resourceName;
+    pageToken = res.nextPageToken;
+  } while (pageToken);
+  return People.ContactGroups.create({ contactGroup: { name: LABEL } }).resourceName;
 }
 
 // ---------------------------------------------------------------- the list
