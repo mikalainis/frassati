@@ -63,6 +63,7 @@ function setup() {
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Membership')
     .addItem('Check for new RSVPs now', 'syncRsvps')
+    .addItem('Import website sign-ups from Gmail', 'importSignupEmails')
     .addToUi();
 }
 
@@ -126,6 +127,49 @@ function doPost(e) {
   }
 }
 
+/**
+ * One-time catch-up: adds people from the website sign-up emails (sent by FormSubmit to this
+ * account's inbox) who are not on the list yet. Safe to run more than once.
+ */
+function importSignupEmails() {
+  const threads = GmailApp.search('subject:"New Frassati Fellowship signup" OR from:formsubmit.co', 0, 500);
+  const seen = {};
+  let found = 0, added = 0;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const before = sheet_().getLastRow();
+    threads.forEach((t) => t.getMessages().forEach((msg) => {
+      const p = parseSignup_(msg.getPlainBody());
+      if (!p.email || seen[p.email]) return;
+      seen[p.email] = true;
+      found++;
+      upsertMember_({ name: p.name, email: p.email, source: 'Website sign-up', when: msg.getDate(), eventHeader: null });
+    }));
+    added = sheet_().getLastRow() - before;
+  } finally {
+    lock.releaseLock();
+  }
+  const msg = found + ' sign-up email(s) found; ' + added + ' new person(s) added to the list.';
+  Logger.log(msg);
+  try { SpreadsheetApp.getActive().toast(msg, 'Membership', 10); } catch (e) { /* run from editor */ }
+}
+
+/** Reads "First name / Last name / Email" from a FormSubmit email (table or "Label: value"). */
+function parseSignup_(body) {
+  const text = String(body || '').replace(/\r/g, '').replace(/\*/g, ''); // Gmail marks bold cells *like this*
+  const field = (label) => {
+    const m = text.match(new RegExp(label + '\\s*[:|\\t]?\\s*\\n?\\s*([^\\n|\\t]+)', 'i'));
+    return m ? clean_(m[1]) : '';
+  };
+  const email = cleanEmail_(field('Email')) ||
+    cleanEmail_((text.match(/[^\s@<>]+@[^\s@<>]+\.[a-z]{2,}/i) || [''])[0].replace(/formsubmit\.co$/i, ''));
+  if (!email || /@formsubmit\.co$|frassatinj@gmail\.com$/i.test(email)) return { email: '', name: '' };
+  const name = [field('First name'), field('Last name')].filter((x) => x && !/@/.test(x) &&
+    !/^(last name|email)$/i.test(x)).map(titleCase_).join(' ');
+  return { email: email, name: name };
+}
+
 // ---------------------------------------------------------------- the list
 
 /** Adds or updates one person. Callers hold the script lock. */
@@ -164,7 +208,7 @@ function upsertMember_(p) {
     return;
   }
   const row = idx + 2, r = data[idx];
-  if (!clean_(r[nameCol]) && p.name) set(row, nameCol, p.name);
+  if (!/[a-z]/i.test(clean_(r[nameCol])) && p.name) set(row, nameCol, p.name); // blank or junk like "* *"
   if (email && !cleanEmail_(r[emailCol])) set(row, emailCol, email);
   const first = r[h['first contact']];
   const earliest = !(first instanceof Date) || when < first;
@@ -236,5 +280,5 @@ function json_(obj) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { cleanEmail_, clean_, titleCase_ };
+  module.exports = { cleanEmail_, clean_, titleCase_, parseSignup_ };
 }
