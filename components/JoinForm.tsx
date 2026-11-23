@@ -6,17 +6,30 @@ import { useState } from "react";
 // (https://formsubmit.co — free, no account needed). The FIRST submission
 // triggers a one-time confirmation email to frassatinj@gmail.com; click the
 // link in it to activate. After that, every signup arrives in the inbox.
+// Each signup is also added to the Membership sheet through /api/join.
 const ENDPOINT = "https://formsubmit.co/ajax/frassatinj@gmail.com";
 
 export default function JoinForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle"
   );
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "" });
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", website: "" });
 
   async function submit() {
     if (!form.email.trim() || status === "sending") return;
     setStatus("sending");
+    // Membership sheet: best effort, alongside the email notification.
+    const member = fetch("/api/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    })
+      .then((r) => r.ok)
+      .catch(() => false);
+    if (form.website) {
+      setStatus("sent");
+      return;
+    }
     try {
       const res = await fetch(ENDPOINT, {
         method: "POST",
@@ -33,7 +46,7 @@ export default function JoinForm() {
       if (!res.ok) throw new Error();
       setStatus("sent");
     } catch {
-      setStatus("error");
+      setStatus((await member) ? "sent" : "error");
     }
   }
 
@@ -66,6 +79,17 @@ export default function JoinForm() {
           onChange={(e) => setForm({ ...form, lastName: e.target.value })}
         />
       </label>
+      {/* Hidden from people; bots that fill it in are ignored. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+        value={form.website}
+        onChange={(e) => setForm({ ...form, website: e.target.value })}
+      />
       <label className="text-sm text-mist sm:col-span-2">
         Email address
         <input

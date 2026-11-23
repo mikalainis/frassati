@@ -62,6 +62,8 @@ jobs:
       - name: Deploy to Cloud Run
         if: steps.cfg.outputs.ready == 'true'
         id: deploy
+        env:
+          MEMBERSHIP_WEBHOOK_URL: ${{ secrets.MEMBERSHIP_WEBHOOK_URL }}
         run: |
           gcloud run deploy "$SERVICE" \
             --image "${{ steps.img.outputs.image }}" \
@@ -69,6 +71,7 @@ jobs:
             --service-account "$GCP_RUNTIME_SA" \
             --port 8080 --memory 512Mi --cpu 1 \
             --min-instances 0 --max-instances 3 \
+            --set-env-vars "MEMBERSHIP_WEBHOOK_URL=${MEMBERSHIP_WEBHOOK_URL}" \
             --allow-unauthenticated
           url="$(gcloud run services describe "$SERVICE" --region "$GCP_REGION" --format='value(status.url)')"
           echo "url=$url" >> "$GITHUB_OUTPUT"
