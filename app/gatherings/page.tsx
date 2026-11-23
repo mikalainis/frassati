@@ -11,7 +11,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Gatherings & Calendar",
   description:
-    "Upcoming gatherings and calendar of the Frassati Fellowship of New Jersey — Dinner & Holy Hour, The Hike, Service, and Spiritual Formation."
+    "Upcoming gatherings and calendar of the Frassati Fellowship of New Jersey — Dinner & Holy Hour, The Hike, and Service."
 };
 
 // This embeds the frassatinj@gmail.com Google Calendar. For it to display,
@@ -42,8 +42,8 @@ export default async function Gatherings() {
           </h1>
           <p className="mt-5 max-w-xl text-mist">
             Each begins in fellowship and rises toward the Lord — at the
-            altar, on the mountain, among the poor, and in the study of the
-            faith.
+            altar, on the mountain, and among the poor — and each carries a
+            moment of formation in the faith.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a href="#calendar" className="btn-gold">
@@ -74,6 +74,7 @@ export default async function Gatherings() {
               <span className="chip">First: <b>Fall 2026</b></span>
               <span className="chip"><b>50–60</b> guests</span>
               <span className="chip">Growing from <b>St. James</b> outward</span>
+              <span className="chip">A short <b>talk</b> from a chaplain</span>
             </div>
             <div className="mt-auto">
               <NextEvent gathering="dinner" event={next.dinner} />
@@ -94,6 +95,7 @@ export default async function Gatherings() {
             <div className="mt-6 flex flex-wrap gap-2">
               <span className="chip">One <b>family</b> route · one <b>adult</b> route</span>
               <span className="chip">Signed <b>waiver</b> required</span>
+              <span className="chip"><b>Reflection</b> on the trail</span>
             </div>
             <div className="mt-auto">
               <NextEvent gathering="hike" event={next.hike} />
@@ -101,7 +103,7 @@ export default async function Gatherings() {
           </article>
         </Reveal>
 
-        <Reveal>
+        <Reveal className="md:col-span-2">
           <article className="card-dark flex h-full flex-col p-8 md:p-10">
             <h2 className="font-display text-4xl text-bone">Service</h2>
             <p className="mt-5 leading-relaxed text-mist">
@@ -117,28 +119,10 @@ export default async function Gatherings() {
               <span className="chip"><b>Clothing</b> drives</span>
               <span className="chip">With <b>Catholic apostolates</b></span>
               <span className="chip"><b>Family</b>-friendly</span>
+              <span className="chip">A word on the <b>works of mercy</b></span>
             </div>
             <div className="mt-auto">
               <NextEvent gathering="service" event={next.service} />
-            </div>
-          </article>
-        </Reveal>
-        <Reveal>
-          <article className="card-dark flex h-full flex-col p-8 md:p-10">
-            <h2 className="font-display text-4xl text-bone">Spiritual Formation</h2>
-            <p className="mt-5 leading-relaxed text-mist">
-              Pier Giorgio&apos;s joy was rooted in the Eucharist, Scripture,
-              and the teaching of the Church. Our chaplains lead talks and
-              discussion on the faith, the saints, and the life of virtue, so
-              that what we pray at the altar and carry up the mountain takes
-              root in our daily lives.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              <span className="chip">Led by our <b>chaplains</b></span>
-              <span className="chip"><b>Scripture</b> · the saints · Church teaching</span>
-            </div>
-            <div className="mt-auto">
-              <NextEvent gathering="formation" event={next.formation} />
             </div>
           </article>
         </Reveal>
@@ -152,9 +136,8 @@ export default async function Gatherings() {
             Upcoming gatherings.
           </h2>
           <p className="mt-5 max-w-xl text-mist">
-            Hikes, Holy Hours, service, and formation — added here as each is scheduled. To
-            RSVP, click on the calendar event you&apos;d like to attend and
-            respond there.
+            Hikes, Holy Hours, and service — added here as each is scheduled.
+            To RSVP, use the RSVP button on that gathering above.
           </p>
           <p className="mt-4 text-sm text-mist">
             Follow along on Instagram:{" "}
