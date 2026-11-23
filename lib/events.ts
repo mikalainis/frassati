@@ -174,7 +174,8 @@ async function fetchTab(gathering: Gathering, today: string): Promise<UpcomingEv
 /** Next event for every gathering (each tab cached for REFRESH_SECONDS). Never throws. */
 export async function getNextEvents(): Promise<Partial<Record<Gathering, UpcomingEvent>>> {
   const today = todayInNewJersey();
-  const keys = Object.keys(TABS) as Gathering[];
+  // Spiritual Formation now happens within the other gatherings, so its tab isn't shown.
+  const keys: Gathering[] = ["dinner", "hike", "service"];
   const found = await Promise.all(keys.map((g) => fetchTab(g, today)));
   const next: Partial<Record<Gathering, UpcomingEvent>> = {};
   keys.forEach((g, i) => {
