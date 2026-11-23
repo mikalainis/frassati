@@ -157,7 +157,7 @@ function importSignupEmails() {
 
 /** Reads "First name / Last name / Email" from a FormSubmit email (table or "Label: value"). */
 function parseSignup_(body) {
-  const text = String(body || '').replace(/\r/g, '');
+  const text = String(body || '').replace(/\r/g, '').replace(/\*/g, ''); // Gmail marks bold cells *like this*
   const field = (label) => {
     const m = text.match(new RegExp(label + '\\s*[:|\\t]?\\s*\\n?\\s*([^\\n|\\t]+)', 'i'));
     return m ? clean_(m[1]) : '';
@@ -208,7 +208,7 @@ function upsertMember_(p) {
     return;
   }
   const row = idx + 2, r = data[idx];
-  if (!clean_(r[nameCol]) && p.name) set(row, nameCol, p.name);
+  if (!/[a-z]/i.test(clean_(r[nameCol])) && p.name) set(row, nameCol, p.name); // blank or junk like "* *"
   if (email && !cleanEmail_(r[emailCol])) set(row, emailCol, email);
   const first = r[h['first contact']];
   const earliest = !(first instanceof Date) || when < first;
